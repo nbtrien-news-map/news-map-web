@@ -11,13 +11,21 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.8.2",
+    "@tanstack/react-query": "^5.81.5",
     "antd": "^5.26.2",
+    "axios": "^1.10.0",
+    "leaflet": "^1.9.4",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-redux": "^9.2.0"
+    "react-icons": "^5.5.0",
+    "react-leaflet": "^5.0.0",
+    "react-leaflet-markercluster": "^5.0.0-rc.0",
+    "react-redux": "^9.2.0",
+    "react-router-dom": "^7.6.3"
   },
   "devDependencies": {
     "@eslint/js": "^9.30.0",
+    "@types/leaflet": "^1.9.19",
     "@types/node": "^24.0.7",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",

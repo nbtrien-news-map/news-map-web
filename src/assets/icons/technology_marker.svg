@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 600" width="140" height="160">
+  <!-- Marker shape -->
+  <path
+    d="M256 0C167.6 0 96 71.6 96 160c0 27.2 8.4 52.4 22.6 73.2 38.6 56.4 122.2 210 128.2 220 3.2 5 7.8 7 12.4 7s9.2-2 12.4-7c6-10 89.6-163.6 128.2-220 14.2-20.8 22.6-46 22.6-73.2 0-88.4-71.6-160-160-160z"
+    fill="#EF5350" fill-opacity="1"
+    stroke="#000000" stroke-width="15"
+  />
+  <!-- Inner circle -->
+  <circle cx="256" cy="160" r="110" fill="#FF8A65" stroke="#666666" stroke-width="8"/>
+
+  <!-- Circuit icon for Technology -->
+  <g transform="translate(160, 68) scale(3.3)" fill="#FF7043" stroke="#D84315" stroke-width="1.5" filter="url(#glow)">
+    <circle cx="28" cy="28" r="26" fill="#FFCCBC" stroke="#FF7043" stroke-width="2.5"/>
+    <path d="M20 28 h16 M28 20 v16 M18 18 l20 20" stroke="#FF7043" stroke-width="1.5"/>
+    <circle cx="20" cy="28" r="2" fill="#FF7043"/>
+    <circle cx="36" cy="28" r="2" fill="#FF7043"/>
+  </g>
+
+  <defs>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="0" stdDeviation="3" flood-color="#FF7043" flood-opacity="1"/>
+    </filter>
+  </defs>
+</svg>
