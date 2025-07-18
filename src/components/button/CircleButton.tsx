@@ -32,8 +32,8 @@ export const CircleButton: React.FC<CircleButtonProps> = ({
             size={size}
             onClick={onClick}
             className={`group relative flex items-center justify-center 
-                bg-transparent text-white border border-white/20 
-                hover:border-white hover:bg-white/10 
+                bg-transparent text-white border-1 border-solid border-white/20 
+                hover:border-white/20  hover:bg-white/10 
                 transition-all rounded-full shadow-none 
                 p-0 ${sizeClasses[size]} ${className}`}
             {...rest}

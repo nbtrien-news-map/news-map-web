@@ -22,7 +22,7 @@ const defaultConfig: MarkerIconConfig = {
     iconSize: 24,
     stickFill: 'black',
     totalSize: [36, 48],
-    iconAnchor: [16, 48],
+    iconAnchor: [18, 48],
     popupAnchor: [0, -48],
 };
 

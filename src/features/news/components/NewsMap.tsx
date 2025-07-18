@@ -1,64 +1,93 @@
-import { type LatLngExpression } from 'leaflet';
+import L, { type LatLngExpression } from 'leaflet';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
-import { useEffect } from 'react';
-import { MapContainer, Marker, Popup, TileLayer, useMap } from 'react-leaflet';
+import React, { useEffect } from 'react';
+import { renderToStaticMarkup } from 'react-dom/server';
+import { MapContainer, Marker, TileLayer, Tooltip, useMap } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-markercluster';
 import { createCustomMapMarkerIcon } from '~/components/icons/CustomMapMarkerIcon';
+import { NumberedMarkerIcon } from '~/components/icons/NumberedMarkerIcon';
+import type { NewsResponse } from '~/types/api/news';
 import { useNewsMap } from '../hooks/useNewsMap';
+import NewsMapTooltip from './NewsMapTooltip';
+
+type NewsMapProps = {
+    onSelectNews: (item: NewsResponse) => void;
+};
 
 const MapUpdater = ({ center }: { center: LatLngExpression }) => {
     const map = useMap();
-
     useEffect(() => {
         if (center) {
             map.setView(center, map.getZoom());
         }
     }, [center, map]);
-
     return null;
 };
 
-const NewsMap = () => {
+const NewsMap = ({ onSelectNews }: NewsMapProps) => {
     const { state } = useNewsMap();
+
     const clusterOptions = {
         maxClusterRadius: 5,
         spiderfyOnMaxZoom: true,
         removeOutsideVisibleBounds: true,
         chunkedLoading: true,
+        iconCreateFunction: (cluster: any) => {
+            const count = cluster.getChildCount();
+            const svgString = renderToStaticMarkup(<NumberedMarkerIcon number={count} />);
+            const svgDataUrl = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svgString)}`;
+            return new L.Icon({
+                iconUrl: svgDataUrl,
+                iconSize: [50, 60],
+                iconAnchor: [25, 60],
+                popupAnchor: [0, -48],
+            });
+        },
     };
 
     return (
-        <MapContainer
-            center={[15.6425158, 108.0944116]}
-            zoom={9}
-            scrollWheelZoom={true}
-            className="w-full h-[90vh] z-0"
-            style={{ width: '100%', height: '100vh' }}
-        >
-            <MapUpdater center={state.center} />
+        <div className="flex h-[90vh]">
+            <MapContainer
+                center={state.center}
+                zoom={9}
+                scrollWheelZoom={true}
+                className="w-full h-[90vh] z-0"
+                style={{ width: '100%', height: '100vh' }}
+            >
+                <MapUpdater center={state.center} />
 
-            <TileLayer
-                url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, &copy; <a href="https://carto.com/attributions">CARTO</a>'
-            />
-            <MarkerClusterGroup key={JSON.stringify(state.news)} {...clusterOptions}>
-                {state?.news?.map((item) => (
-                    <Marker
-                        key={item.id}
-                        position={[item.geocodingLocation.latitude, item.geocodingLocation.longitude]}
-                        icon={createCustomMapMarkerIcon(item.category.id)}
-                    >
-                        <Popup>
-                            <div>
-                                <p>{item?.title}</p>
-                                <p>{item?.address || item?.geocodingLocation.name}</p>
-                            </div>
-                        </Popup>
-                    </Marker>
-                ))}
-            </MarkerClusterGroup>
-        </MapContainer>
+                <TileLayer url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png" />
+                <MarkerClusterGroup key={JSON.stringify(state.news)} {...clusterOptions}>
+                    {state?.news?.map((item) => (
+                        <Marker
+                            key={item.id}
+                            position={[item.geocodingLocation.latitude, item.geocodingLocation.longitude]}
+                            icon={createCustomMapMarkerIcon(item.category.id)}
+                            eventHandlers={{
+                                click: () => onSelectNews(item),
+                            }}
+                        >
+                            <Tooltip direction="top" offset={[2, -42]} interactive opacity={1} permanent={false}>
+                                <NewsMapTooltip
+                                    title={item.title}
+                                    subtitle={[
+                                        {
+                                            key: 'Nguồn',
+                                            value: item.provider,
+                                        },
+                                        {
+                                            key: 'Địa chỉ',
+                                            value: item.geocodingLocation.displayName,
+                                        },
+                                    ]}
+                                />
+                            </Tooltip>
+                        </Marker>
+                    ))}
+                </MarkerClusterGroup>
+            </MapContainer>
+        </div>
     );
 };
-export default NewsMap;
+export default React.memo(NewsMap);

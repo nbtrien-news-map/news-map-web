@@ -6,6 +6,9 @@ export interface NewsResponse {
     title: string;
     description: string;
     address: string;
+    provider: string;
+    sourceUrl: string;
+    publishedAt: string;
     geocodingLocation: GeocodingLocationResponse;
     category: CategoryResponse;
 }
