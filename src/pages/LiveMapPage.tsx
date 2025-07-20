@@ -7,7 +7,7 @@ import { MapFilterPanel } from '~/layouts/MapFilterPanel';
 import type { NewsResponse } from '~/types/api/news';
 
 export const LiveMapPage = () => {
-    const [showSidebar, setShowSidebar] = useState(false);
+    const [showSidebar, setShowSidebar] = useState(true);
     const [selectedNews, setSelectedNews] = useState<NewsResponse | null>(null);
 
     const handleSelectNews = useCallback((news: NewsResponse | null) => {

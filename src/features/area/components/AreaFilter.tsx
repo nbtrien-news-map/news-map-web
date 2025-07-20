@@ -6,12 +6,12 @@ import { setSelectedArea } from '../slices/selectedAreaSlice';
 
 export const AreaFilter = () => {
     const { state } = useAreaFilter();
-    const selectedAreaId = useSelector((state: RootState) => state.selectedArea.id);
+    const selectedArea = useSelector((state: RootState) => state.selectedArea.area);
     const dispatch = useDispatch();
     return (
         <div className="flex flex-wrap gap-2">
             {state?.areas?.map((area) => {
-                const isSelected = selectedAreaId === area?.id;
+                const isSelected = selectedArea?.id === area?.id;
                 return (
                     <Button
                         key={area?.id}

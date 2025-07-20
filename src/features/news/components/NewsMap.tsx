@@ -8,6 +8,7 @@ import MarkerClusterGroup from 'react-leaflet-markercluster';
 import { createCustomMapMarkerIcon } from '~/components/icons/CustomMapMarkerIcon';
 import { NumberedMarkerIcon } from '~/components/icons/NumberedMarkerIcon';
 import type { NewsResponse } from '~/types/api/news';
+import { formatDateTimeWithWeekday } from '~/utils/date-time.util';
 import { useNewsMap } from '../hooks/useNewsMap';
 import NewsMapTooltip from './NewsMapTooltip';
 
@@ -19,7 +20,7 @@ const MapUpdater = ({ center }: { center: LatLngExpression }) => {
     const map = useMap();
     useEffect(() => {
         if (center) {
-            map.setView(center, map.getZoom());
+            map.setView(center, 9);
         }
     }, [center, map]);
     return null;
@@ -73,11 +74,15 @@ const NewsMap = ({ onSelectNews }: NewsMapProps) => {
                                     title={item.title}
                                     subtitle={[
                                         {
-                                            key: 'Nguồn',
+                                            key: 'Published',
+                                            value: formatDateTimeWithWeekday(item?.publishedAt),
+                                        },
+                                        {
+                                            key: 'Source',
                                             value: item.provider,
                                         },
                                         {
-                                            key: 'Địa chỉ',
+                                            key: 'Location',
                                             value: item.geocodingLocation.displayName,
                                         },
                                     ]}

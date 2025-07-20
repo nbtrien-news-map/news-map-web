@@ -6,6 +6,11 @@ export const fetchAllAreas = async (): Promise<AreaResponse[]> => {
     return response.data;
 };
 
+export const fetchAreaByLocation = async (latitude: number, longitude: number): Promise<AreaResponse> => {
+    const response = await axiosInstance.get(`/areas/by-location?latitude=${latitude}&longitude=${longitude}`);
+    return response.data;
+};
+
 export const fetchNearestAreaByLocation = async (latitude: number, longitude: number): Promise<AreaResponse> => {
     const response = await axiosInstance.get(`/areas/nearest?latitude=${latitude}&longitude=${longitude}`);
     return response.data;

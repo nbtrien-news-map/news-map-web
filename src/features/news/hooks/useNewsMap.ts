@@ -1,50 +1,57 @@
 import type { LatLngExpression } from 'leaflet';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchDefaultArea, fetchNearestAreaByLocation } from '~/api/endpoints/area.api';
-import { setSelectedArea } from '~/features/area/slices/selectedAreaSlice';
-import { useUserGeolocation } from '~/hooks/useUserGeolocation';
+import { fetchAreaByLocation, fetchDefaultArea } from '~/api/endpoints/area.api';
+import { removeSelectedArea, setSelectedArea } from '~/features/area/slices/selectedAreaSlice';
+import { useUserGeolocation } from '~/features/user-geolocation/hooks/useUserGeolocation';
 import { useNewsByAreaIdAndCategoryIdsQuery } from '~/queries/news.queries';
 import type { RootState } from '~/store';
+
 export const useNewsMap = () => {
     const dispatch = useDispatch();
-    const selectedArea = useSelector((state: RootState) => state.selectedArea);
+    const selectedArea = useSelector((state: RootState) => state.selectedArea.area);
     const selectedCategories = useSelector((state: RootState) => state.selectedCategories.ids);
-    const { position } = useUserGeolocation();
-    const { id: selectedAreaId, latitude, longitude } = selectedArea;
-    const { position: userPosition } = useUserGeolocation();
-    const [areaId, setAreaId] = useState<number | null>(null);
+    const { loading: locationLoading } = useUserGeolocation();
+    const userPosition = useSelector((state: RootState) => state.userPosition.position);
+    const areaId = selectedArea?.id ?? null;
 
     useEffect(() => {
+        let isMounted = true;
+
         const fetchArea = async () => {
-            if (selectedAreaId != null) {
-                setAreaId(selectedAreaId);
-            } else if (userPosition != null) {
-                const nearestArea = await fetchNearestAreaByLocation(
-                    userPosition.coords.latitude,
-                    userPosition.coords.longitude
-                );
-                if (nearestArea) {
-                    setAreaId(nearestArea.id);
-                    dispatch(setSelectedArea(nearestArea));
-                }
-            } else {
-                const defaultArea = await fetchDefaultArea();
-                if (defaultArea) {
-                    setAreaId(defaultArea.id);
-                    dispatch(setSelectedArea(defaultArea));
+            if (!selectedArea && !locationLoading) {
+                try {
+                    if (userPosition) {
+                        const area = await fetchAreaByLocation(userPosition.latitude, userPosition.longitude);
+                        if (area && isMounted) {
+                            dispatch(setSelectedArea(area));
+                        }
+                    } else {
+                        const defaultArea = await fetchDefaultArea();
+                        if (defaultArea && isMounted) {
+                            dispatch(setSelectedArea(defaultArea));
+                        }
+                    }
+                } catch (error) {
+                    if (isMounted) {
+                        dispatch(removeSelectedArea());
+                    }
                 }
             }
         };
 
         fetchArea();
-    }, [selectedAreaId, userPosition, dispatch]);
+
+        return () => {
+            isMounted = false;
+        };
+    }, [locationLoading, selectedArea, userPosition, dispatch]);
 
     const { data: news, isLoading, error } = useNewsByAreaIdAndCategoryIdsQuery(areaId, selectedCategories);
     const center: LatLngExpression = [
-        latitude ?? position?.coords?.latitude ?? 0,
-        longitude ?? position?.coords?.longitude ?? 0,
-    ];
+        selectedArea?.latitude ?? userPosition?.latitude ?? 0,
+        selectedArea?.longitude ?? userPosition?.longitude ?? 0,
+    ] as LatLngExpression;
 
     return {
         state: {

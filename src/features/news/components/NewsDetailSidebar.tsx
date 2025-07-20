@@ -24,7 +24,7 @@ const InfoRow: React.FC<InfoRowProps> = ({ label, value }) => (
 );
 
 const NewsDetailSidebar: React.FC<NewsDetailSidebarProps> = ({ news, onClose }) => {
-    const area = useSelector((state: RootState) => state.selectedArea.name);
+    const area = useSelector((state: RootState) => state.selectedArea.area?.name);
     return (
         <div className="p-4 h-full overflow-y-auto bg-gray-900 rounded-xl bg-opacity-90">
             <Flex justify="space-between" align="start">
@@ -42,11 +42,11 @@ const NewsDetailSidebar: React.FC<NewsDetailSidebarProps> = ({ news, onClose }) 
                 </Typography.Text>
 
                 <Flex vertical={true} gap={3} className="mt-3">
-                    <InfoRow label="Danh mục" value={news.category.name} />
-                    <InfoRow label="Nguồn" value={news.provider} />
-                    <InfoRow label="Địa chỉ" value={news.geocodingLocation.displayName} />
+                    <InfoRow label="Category" value={news.category.name} />
+                    <InfoRow label="Source" value={news.provider} />
+                    <InfoRow label="Location" value={news.geocodingLocation.displayName} />
                     <InfoRow
-                        label="Link bài viết"
+                        label="Article Link"
                         value={
                             <a href={news.sourceUrl} target="_blank" rel="noopener noreferrer">
                                 {news.sourceUrl}

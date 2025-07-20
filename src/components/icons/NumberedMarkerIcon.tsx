@@ -40,9 +40,9 @@ export const NumberedMarkerIcon = ({ number, size = 40, color = '#ff1744' }: Num
                 x="256"
                 y="160"
                 dy="0.3em"
-                dx="-0.1em"
+                dx="0em"
                 textAnchor="middle"
-                fontSize="130"
+                fontSize="120"
                 fontWeight="900"
                 fontFamily="Arial, sans-serif"
                 fill="#ffffff"
@@ -51,7 +51,7 @@ export const NumberedMarkerIcon = ({ number, size = 40, color = '#ff1744' }: Num
                 paintOrder="stroke fill"
                 filter="url(#strongTextShadow)"
             >
-                +{number}
+                {number >= 100 ? '99+' : `+${number}`}
             </text>
         </svg>
     );
