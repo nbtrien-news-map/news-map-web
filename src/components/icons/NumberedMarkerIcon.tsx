@@ -34,7 +34,7 @@ export const NumberedMarkerIcon = ({ number, size = 40, color = '#ff1744' }: Num
                 filter="url(#glow)"
             />
 
-            <circle cx="256" cy="160" r="100" fill="#222222" stroke="#000000" strokeWidth="15" />
+            <circle cx="256" cy="160" r="100" fill="#A1887F" stroke="#000000" strokeWidth="15" />
 
             <text
                 x="256"
@@ -46,10 +46,9 @@ export const NumberedMarkerIcon = ({ number, size = 40, color = '#ff1744' }: Num
                 fontWeight="900"
                 fontFamily="Arial, sans-serif"
                 fill="#ffffff"
-                stroke="#000000"
+                stroke="#000"
                 strokeWidth="10"
                 paintOrder="stroke fill"
-                filter="url(#strongTextShadow)"
             >
                 {number >= 100 ? '99+' : `+${number}`}
             </text>

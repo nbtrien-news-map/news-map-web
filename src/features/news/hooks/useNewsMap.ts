@@ -1,11 +1,13 @@
 import type { LatLngExpression } from 'leaflet';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchAreaByLocation, fetchDefaultArea } from '~/api/endpoints/area.api';
 import { removeSelectedArea, setSelectedArea } from '~/features/area/slices/selectedAreaSlice';
 import { useUserGeolocation } from '~/features/user-geolocation/hooks/useUserGeolocation';
 import { useNewsByAreaIdAndCategoryIdsQuery } from '~/queries/news.queries';
+import { useNominatimLookupQuery } from '~/queries/nominatim.queries';
 import type { RootState } from '~/store';
+import { buildOsmIdsParam, convertGeoJsonToLatLngArray } from '~/utils/osm.util';
 
 export const useNewsMap = () => {
     const dispatch = useDispatch();
@@ -14,10 +16,20 @@ export const useNewsMap = () => {
     const { loading: locationLoading } = useUserGeolocation();
     const userPosition = useSelector((state: RootState) => state.userPosition.position);
     const areaId = selectedArea?.id ?? null;
+    const [areaPolygon, setAreaPolygon] = useState<LatLngExpression[][]>([]);
+    const areaOsmId =
+        selectedArea?.osmId && selectedArea?.osmType
+            ? buildOsmIdsParam(selectedArea.osmType, selectedArea.osmId)
+            : null;
+    const { data: news, isLoading, error } = useNewsByAreaIdAndCategoryIdsQuery(areaId, selectedCategories);
+    const { data: areaLookupResponses } = useNominatimLookupQuery(areaOsmId);
+    const center: LatLngExpression = [
+        selectedArea?.latitude ?? userPosition?.latitude ?? 0,
+        selectedArea?.longitude ?? userPosition?.longitude ?? 0,
+    ] as LatLngExpression;
 
     useEffect(() => {
         let isMounted = true;
-
         const fetchArea = async () => {
             if (!selectedArea && !locationLoading) {
                 try {
@@ -41,17 +53,19 @@ export const useNewsMap = () => {
         };
 
         fetchArea();
-
         return () => {
             isMounted = false;
         };
-    }, [locationLoading, selectedArea, userPosition, dispatch]);
+    }, [locationLoading, selectedArea, userPosition]);
 
-    const { data: news, isLoading, error } = useNewsByAreaIdAndCategoryIdsQuery(areaId, selectedCategories);
-    const center: LatLngExpression = [
-        selectedArea?.latitude ?? userPosition?.latitude ?? 0,
-        selectedArea?.longitude ?? userPosition?.longitude ?? 0,
-    ] as LatLngExpression;
+    useEffect(() => {
+        if (areaLookupResponses?.length) {
+            const matched = areaLookupResponses.find((r) => r.osm_id === selectedArea?.osmId && r.geojson);
+            if (matched) {
+                setAreaPolygon(convertGeoJsonToLatLngArray(matched.geojson));
+            }
+        }
+    }, [areaLookupResponses, selectedArea?.osmId]);
 
     return {
         state: {
@@ -60,6 +74,7 @@ export const useNewsMap = () => {
             center,
             isLoading,
             error,
+            areaPolygon,
         },
     };
 };

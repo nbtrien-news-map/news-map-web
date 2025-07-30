@@ -8,6 +8,8 @@ interface SelectedArea {
     name: string;
     latitude: number;
     longitude: number;
+    osmId: number;
+    osmType: string;
     boundingBox: number[];
 }
 
@@ -33,6 +35,8 @@ export const selectedAreaSlice = createSlice({
             state.area.latitude = action.payload.latitude;
             state.area.longitude = action.payload.longitude;
             state.area.boundingBox = action.payload.boundingBox;
+            state.area.osmId = action.payload.osmId;
+            state.area.osmType = action.payload.osmType;
         },
         removeSelectedArea: (state) => {
             state.area = null;

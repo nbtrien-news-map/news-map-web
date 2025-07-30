@@ -1,9 +1,10 @@
 import L, { type LatLngExpression } from 'leaflet';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
+import 'leaflet/dist/leaflet.css';
 import React, { useEffect } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
-import { MapContainer, Marker, TileLayer, Tooltip, useMap } from 'react-leaflet';
+import { MapContainer, Marker, Polygon, TileLayer, Tooltip, useMap } from 'react-leaflet';
 import MarkerClusterGroup from 'react-leaflet-markercluster';
 import { createCustomMapMarkerIcon } from '~/components/icons/CustomMapMarkerIcon';
 import { NumberedMarkerIcon } from '~/components/icons/NumberedMarkerIcon';
@@ -11,16 +12,28 @@ import type { NewsResponse } from '~/types/api/news';
 import { formatDateTimeWithWeekday } from '~/utils/date-time.util';
 import { useNewsMap } from '../hooks/useNewsMap';
 import NewsMapTooltip from './NewsMapTooltip';
+import { DEFAULT_CATEGORY_COLOR } from '~/constants/newsCategories.constant';
 
 type NewsMapProps = {
     onSelectNews: (item: NewsResponse) => void;
+};
+
+const polygonStyle = {
+    fillColor: 'rgba(30, 144, 255, 0.2)',
+    fillOpacity: 0.4,
+    weight: 1,
+    color: '#1E90FF',
+    opacity: 0.8,
 };
 
 const MapUpdater = ({ center }: { center: LatLngExpression }) => {
     const map = useMap();
     useEffect(() => {
         if (center) {
-            map.setView(center, 9);
+            map.panTo(center, {
+                animate: true,
+                duration: 1.5,
+            });
         }
     }, [center, map]);
     return null;
@@ -36,12 +49,14 @@ const NewsMap = ({ onSelectNews }: NewsMapProps) => {
         chunkedLoading: true,
         iconCreateFunction: (cluster: any) => {
             const count = cluster.getChildCount();
-            const svgString = renderToStaticMarkup(<NumberedMarkerIcon number={count} />);
+            const svgString = renderToStaticMarkup(
+                <NumberedMarkerIcon number={count} color={DEFAULT_CATEGORY_COLOR} />
+            );
             const svgDataUrl = `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svgString)}`;
             return new L.Icon({
                 iconUrl: svgDataUrl,
-                iconSize: [50, 60],
-                iconAnchor: [25, 60],
+                iconSize: [50, 70],
+                iconAnchor: [30, 75],
                 popupAnchor: [0, -48],
             });
         },
@@ -57,7 +72,6 @@ const NewsMap = ({ onSelectNews }: NewsMapProps) => {
                 style={{ width: '100%', height: '100vh' }}
             >
                 <MapUpdater center={state.center} />
-
                 <TileLayer url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png" />
                 <MarkerClusterGroup key={JSON.stringify(state.news)} {...clusterOptions}>
                     {state?.news?.map((item) => (
@@ -91,6 +105,7 @@ const NewsMap = ({ onSelectNews }: NewsMapProps) => {
                         </Marker>
                     ))}
                 </MarkerClusterGroup>
+                {state?.areaPolygon?.length > 0 && <Polygon pathOptions={polygonStyle} positions={state.areaPolygon} />}
             </MapContainer>
         </div>
     );
