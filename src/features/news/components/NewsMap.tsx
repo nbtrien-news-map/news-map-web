@@ -41,7 +41,7 @@ const MapUpdater = ({ center }: { center: LatLngExpression }) => {
 
 const NewsMap = ({ onSelectNews }: NewsMapProps) => {
     const { state } = useNewsMap();
-
+    const isMobileDevice = /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
     const clusterOptions = {
         maxClusterRadius: 5,
         spiderfyOnMaxZoom: true,
@@ -68,7 +68,7 @@ const NewsMap = ({ onSelectNews }: NewsMapProps) => {
                 center={state.center}
                 zoom={9}
                 scrollWheelZoom={true}
-                className="w-full h-[90vh] z-0"
+                className="w-full h-full z-10"
                 style={{ width: '100%', height: '100vh' }}
             >
                 <MapUpdater center={state.center} />
@@ -83,25 +83,27 @@ const NewsMap = ({ onSelectNews }: NewsMapProps) => {
                                 click: () => onSelectNews(item),
                             }}
                         >
-                            <Tooltip direction="top" offset={[2, -42]} interactive opacity={1} permanent={false}>
-                                <NewsMapTooltip
-                                    title={item.title}
-                                    subtitle={[
-                                        {
-                                            key: 'Published',
-                                            value: formatDateTimeWithWeekday(item?.publishedAt),
-                                        },
-                                        {
-                                            key: 'Source',
-                                            value: item.provider,
-                                        },
-                                        {
-                                            key: 'Location',
-                                            value: item.geocodingLocation.displayName,
-                                        },
-                                    ]}
-                                />
-                            </Tooltip>
+                            {!isMobileDevice && (
+                                <Tooltip direction="top" offset={[2, -42]} interactive opacity={1} permanent={false}>
+                                    <NewsMapTooltip
+                                        title={item.title}
+                                        subtitle={[
+                                            {
+                                                key: 'Published',
+                                                value: formatDateTimeWithWeekday(item?.publishedAt),
+                                            },
+                                            {
+                                                key: 'Source',
+                                                value: item.provider,
+                                            },
+                                            {
+                                                key: 'Location',
+                                                value: item.geocodingLocation.displayName,
+                                            },
+                                        ]}
+                                    />
+                                </Tooltip>
+                            )}
                         </Marker>
                     ))}
                 </MarkerClusterGroup>
